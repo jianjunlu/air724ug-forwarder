@@ -12,6 +12,7 @@ require "cc"
 require "common"
 require "http"
 require "misc"
+require "math"
 require "net"
 require "netLed"
 require "ntp"
@@ -75,6 +76,12 @@ sys.taskInit(
         -- 开机同步时间
         util_ntp.sync()
         sys.timerLoopStart(util_ntp.sync, 1000 * 30)
+
+        -- 定时切换SIM
+        math.randomseed(os.time())
+        local rndSecond = 1000 * 600 * math.random(3, 8)
+        sys.timerLoopStart(util_mobile.switchSIM, rndSecond)
+        print(string.format("切换SIM时间为：%d 秒", rndSecond / 1000))
     end
 )
 

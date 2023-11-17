@@ -52,3 +52,31 @@ function queryTraffic()
         log.warn("util_mobile.queryTraffic", "查询流量代码未配置")
     end
 end
+
+--- 切换SIM
+function switchSIM()
+    print("开始切换SIM...")
+    local newSIM = "0"
+
+    local setRsp = function(currcmd, result, respdata, interdata)
+        print("设置SIM返回:" .. tostring(result) .. ":" .. tostring(respdata) .. "--" .. tostring(interdata))
+        if result == true then
+            print("成功切换到SIM :" .. newSIM)
+        end
+        print("切换SIM完成，5秒后重启!")
+        sys.timerStart(sys.restart, 5000, "powerkey")
+    end
+
+    local getRsp = function(currcmd, result, respdata, interdata)
+        print("查询当前SIM返回:" .. tostring(result) .. ":" .. tostring(respdata) .. "--" .. tostring(interdata))
+        if result == true then
+            if string.find(interdata, "SIMCROSS:0") then
+                newSIM = "1"
+            end
+        end
+        print("设置新的SIM为:" .. newSIM)
+        ril.request("AT+SIMCROSS=" .. newSIM, nil, setRsp)
+    end
+
+    ril.request("AT+SIMCROSS?", nil, getRsp)    
+end
