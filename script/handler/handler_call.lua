@@ -18,9 +18,9 @@ local record_quality = 3
 local record_max_time = 50
 
 -- 音量配置
-audio.setCallVolume(7)
-audio.setMicVolume(15)
-audio.setMicGain("record", 7)
+audio.setCallVolume(1)
+audio.setMicVolume(1)
+audio.setMicGain("record", 1)
 
 ------------------------------------------------- 初始化及状态记录 --------------------------------------------------
 
@@ -152,7 +152,7 @@ local function ttsCallback(result)
         cc.hangUp(CALL_NUMBER)
     else
         -- 延迟开始录音, 防止 TTS 播放时主动挂断电话, 会先触发 TTS 结束回调, 再触发挂断电话回调, 导致 reacrdStart() 判断到正在通话中
-        sys.timerStart(reacrdStart, 500)
+        -- sys.timerStart(reacrdStart, 500)
         -- 发通知
         util_notify.add({"来电号码: " .. CALL_NUMBER, "来电动作: 接听并录音", "", "#CALL #CALL_IN"})
     end
@@ -165,7 +165,7 @@ local function tts()
     if config.TTS_TEXT and config.TTS_TEXT ~= "" then
         -- 播放 TTS
         audio.setTTSSpeed(60)
-        audio.play(7, "TTS", config.TTS_TEXT, 7, ttsCallback)
+        audio.play(7, "TTS", config.TTS_TEXT, 0, ttsCallback)
     else
         -- 播放音频文件
         if nvm.get("CALL_IN_ACTION") == 3 then
