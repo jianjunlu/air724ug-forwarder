@@ -302,7 +302,7 @@ local notify = {
 
 --- 构建设备信息字符串, 用于追加到通知消息中
 -- @return (string) 设备信息
-local function buildDeviceInfo()
+local function buildDeviceInfo(isBoot)
     local msg = "\n"
 
     -- 本机号码
@@ -326,34 +326,36 @@ local function buildDeviceInfo()
         msg = msg .. "\n运营商: " .. oper
     end
 
-    -- 信号
-    local rsrp = net.getRsrp() - 140
-    if rsrp ~= 0 then
-        msg = msg .. "\n信号: " .. rsrp .. "dBm"
-    end
-
-    -- 频段
-    local band = net.getBand()
-    if band ~= "" then
-        msg = msg .. "\n频段: B" .. band
-    end
-
-    -- 板卡
-    local board_version = misc.getModelType()
-    if board_version ~= "" then
-        msg = msg .. "\n板卡: " .. board_version
-    end
-
-    -- 系统版本
-    local os_version = misc.getVersion()
-    if os_version ~= "" then
-        msg = msg .. "\n系统版本: " .. os_version
-    end
-
     -- 温度
     local temperature = util_temperature.get()
     if temperature ~= "-99" then
         msg = msg .. "\n温度: " .. temperature .. "℃"
+    end
+
+    if isBoot then
+        -- 信号
+        local rsrp = net.getRsrp() - 140
+        if rsrp ~= 0 then
+            msg = msg .. "\n信号: " .. rsrp .. "dBm"
+        end
+
+        -- 频段
+        local band = net.getBand()
+        if band ~= "" then
+            msg = msg .. "\n频段: B" .. band
+        end
+
+        -- 板卡
+        local board_version = misc.getModelType()
+        if board_version ~= "" then
+            msg = msg .. "\n板卡: " .. board_version
+        end
+
+        -- 系统版本
+        local os_version = misc.getVersion()
+        if os_version ~= "" then
+            msg = msg .. "\n系统版本: " .. os_version
+        end
     end
 
     return msg
@@ -384,7 +386,11 @@ function send(msg, channel)
 
     -- 通知内容追加设备信息
     if config.NOTIFY_APPEND_MORE_INFO then
-        msg = msg .. buildDeviceInfo()
+        local isBoot = false
+        if string.match(msg, "#BOOT") then
+            isBoot = true
+        end
+        msg = msg .. buildDeviceInfo(isBoot)
     end
 
     -- 发送通知
